@@ -7,6 +7,7 @@ import '../../domain/repositories/project_repository.dart';
 import '../widgets/capture_shortcut_card.dart';
 import '../widgets/greeting_card.dart';
 import '../widgets/project_card.dart';
+import '../../../capture/presentation/pages/capture_page.dart';
 
 /// Tela inicial do SmartFloor.
 ///
@@ -31,6 +32,15 @@ class _HomePageState extends State<HomePage> {
   void _showComingSoon(String feature) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('$feature: em breve!')),
+    );
+  }
+
+  /// Abre a tela de captura por cima da Home.
+  /// Navigator é a "pilha de telas": push coloca uma nova no topo,
+  /// e o botão voltar remove ela e retorna à Home.
+  void _openCapture() {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const CapturePage()),
     );
   }
 
@@ -70,7 +80,7 @@ class _HomePageState extends State<HomePage> {
 
       // ---------- Botão flutuante ----------
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showComingSoon('Novo projeto'),
+        onPressed: _openCapture,
         child: const Icon(Icons.add),
       ),
 
@@ -114,7 +124,7 @@ class _HomePageState extends State<HomePage> {
         const GreetingCard(userName: 'Rebeca'),
         const SizedBox(height: 12),
         CaptureShortcutCard(
-          onTap: () => _showComingSoon('Captura de ambiente'),
+          onTap: _openCapture,
         ),
         const SizedBox(height: 24),
         Row(

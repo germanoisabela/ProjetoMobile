@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Paleta de cores do SmartFloor.
-/// Centralizar as cores aqui evita "números mágicos" espalhados pelo código.
 class AppColors {
   AppColors._(); // construtor privado: esta classe só guarda constantes
 
