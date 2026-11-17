@@ -12,12 +12,14 @@ class PlanPainter extends CustomPainter {
   final PlanViewport viewport;
   final int? selectedWall;
   final int? draggedVertex;
+  final bool showHandles;
 
   const PlanPainter({
     required this.plan,
     required this.viewport,
     this.selectedWall,
     this.draggedVertex,
+    this.showHandles = true,
   });
 
   static const Color _selectedColor = Color(0xFFF9A825);
@@ -69,18 +71,20 @@ class PlanPainter extends CustomPainter {
       );
     }
 
-    for (int i = 0; i < points.length; i++) {
-      final bool dragged = i == draggedVertex;
-      final double radius = dragged ? 14 : 9;
-      canvas.drawCircle(points[i], radius, Paint()..color = Colors.white);
-      canvas.drawCircle(
-        points[i],
-        radius,
-        Paint()
-          ..color = dragged ? _selectedColor : AppColors.primary
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3,
-      );
+    if (showHandles) {
+      for (int i = 0; i < points.length; i++) {
+        final bool dragged = i == draggedVertex;
+        final double radius = dragged ? 14 : 9;
+        canvas.drawCircle(points[i], radius, Paint()..color = Colors.white);
+        canvas.drawCircle(
+          points[i],
+          radius,
+          Paint()
+            ..color = dragged ? _selectedColor : AppColors.primary
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 3,
+        );
+      }
     }
   }
 
@@ -135,6 +139,7 @@ class PlanPainter extends CustomPainter {
     return oldDelegate.plan != plan ||
         oldDelegate.viewport != viewport ||
         oldDelegate.selectedWall != selectedWall ||
-        oldDelegate.draggedVertex != draggedVertex;
+        oldDelegate.draggedVertex != draggedVertex ||
+        oldDelegate.showHandles != showHandles;
   }
 }
