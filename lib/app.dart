@@ -1,7 +1,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import 'core/theme/app_theme.dart';
-import 'features/home/presentation/pages/home_page.dart';
+import 'features/home/presentation/pages/welcome_page.dart';
 
 /// Widget raiz do app: configura tema e define a primeira tela.
 class SmartFloorApp extends StatelessWidget {
@@ -13,7 +13,7 @@ class SmartFloorApp extends StatelessWidget {
       title: 'SmartFloor',
       debugShowCheckedModeBanner: false, // remove a faixa "DEBUG"
       theme: AppTheme.light,
-      home: const HomePage(),
+      home: const WelcomePage(),
     );
   }
 }
