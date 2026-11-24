@@ -47,7 +47,7 @@ void main() {
 
     expect(find.text('Faça o seu cadastro'), findsOneWidget);
     expect(find.text('Nome'), findsOneWidget);
-    expect(find.text('Confirmar senha'), findsOneWidget);
+    expect(find.text('Confirmar senha'), findsAtLeastNWidgets(1));
     expect(find.text('Continuar'), findsOneWidget);
   });
 

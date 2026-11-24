@@ -72,7 +72,6 @@ class WelcomePage extends StatelessWidget {
                   const _RoomPreview(),
                   const SizedBox(height: 16),
                   const Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Expanded(
                         child: _FeatureCard(

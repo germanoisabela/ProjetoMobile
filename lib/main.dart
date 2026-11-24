@@ -1,14 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, kDebugMode, TargetPlatform;
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
 
-const _firebaseEmulatorHost = '192.168.1.11';
+String get _firebaseEmulatorHost {
+  const configuredHost = String.fromEnvironment('FIREBASE_EMULATOR_HOST');
+  if (configuredHost.isNotEmpty) return configuredHost;
+  return defaultTargetPlatform == TargetPlatform.android
+      ? '10.0.2.2'
+      : 'localhost';
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
