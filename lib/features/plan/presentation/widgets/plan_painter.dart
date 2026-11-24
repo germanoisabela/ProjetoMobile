@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
@@ -27,9 +27,8 @@ class PlanPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final List<Offset> points = plan.vertices
-        .map(viewport.toCanvas)
-        .toList(growable: false);
+    final List<Offset> points =
+        plan.vertices.map(viewport.toCanvas).toList(growable: false);
     if (points.length < 3) return;
 
     canvas.drawPath(
@@ -52,7 +51,7 @@ class PlanPainter extends CustomPainter {
 
     final Offset center =
         points.fold<Offset>(Offset.zero, (sum, point) => sum + point) /
-        points.length.toDouble();
+            points.length.toDouble();
 
     final walls = plan.walls;
     for (int i = 0; i < walls.length; i++) {
@@ -97,19 +96,15 @@ class PlanPainter extends CustomPainter {
       Offset(size.width, size.height),
     );
 
-    for (
-      int meter = topLeft.x.ceil();
-      meter <= bottomRight.x.floor();
-      meter++
-    ) {
+    for (int meter = topLeft.x.ceil();
+        meter <= bottomRight.x.floor();
+        meter++) {
       final double x = viewport.toCanvas(Point2D(meter.toDouble(), 0)).dx;
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
     }
-    for (
-      int meter = topLeft.y.ceil();
-      meter <= bottomRight.y.floor();
-      meter++
-    ) {
+    for (int meter = topLeft.y.ceil();
+        meter <= bottomRight.y.floor();
+        meter++) {
       final double y = viewport.toCanvas(Point2D(0, meter.toDouble())).dy;
       canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
     }

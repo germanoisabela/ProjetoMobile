@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../data/repositories/mock_project_repository.dart';
@@ -14,10 +14,14 @@ import '../../../capture/presentation/pages/capture_page.dart';
 /// Aceita um [repository] injetado para facilitar testes e futuras mudanças de backend.
 class HomePage extends StatefulWidget {
   final ProjectRepository repository;
+  final String userName;
+  final String userEmail;
 
   const HomePage({
     super.key,
     this.repository = const MockProjectRepository(),
+    this.userName = 'Rebeca',
+    this.userEmail = 'rebeca@smartfloor.app',
   });
 
   @override
@@ -121,7 +125,7 @@ class _HomePageState extends State<HomePage> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
       children: [
-        const GreetingCard(userName: 'Rebeca'),
+        GreetingCard(userName: widget.userName),
         const SizedBox(height: 12),
         CaptureShortcutCard(
           onTap: _openCapture,
@@ -222,13 +226,13 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Rebeca',
+                        widget.userName,
                         style: textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       Text(
-                        'rebeca@smartfloor.app',
+                        widget.userEmail,
                         style: textTheme.bodyMedium?.copyWith(
                           color: AppColors.textSecondary,
                         ),

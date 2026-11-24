@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../plan/domain/entities/plan.dart';
@@ -81,9 +81,8 @@ class _AlertsPageState extends State<AlertsPage> {
       settings: widget.settings,
     );
 
-    final int attention = alerts
-        .where((a) => a.severity != AlertSeverity.info)
-        .length;
+    final int attention =
+        alerts.where((a) => a.severity != AlertSeverity.info).length;
 
     return Scaffold(
       appBar: AppBar(
@@ -213,20 +212,20 @@ class _SeverityStyle {
 _SeverityStyle _styleFor(AlertSeverity severity) {
   return switch (severity) {
     AlertSeverity.error => const _SeverityStyle(
-      Color(0xFFC62828),
-      Color(0xFFFDECEA),
-      Icons.error_outline,
-    ),
+        Color(0xFFC62828),
+        Color(0xFFFDECEA),
+        Icons.error_outline,
+      ),
     AlertSeverity.warning => const _SeverityStyle(
-      Color(0xFFE65100),
-      Color(0xFFFFF3E0),
-      Icons.warning_amber_rounded,
-    ),
+        Color(0xFFE65100),
+        Color(0xFFFFF3E0),
+        Icons.warning_amber_rounded,
+      ),
     AlertSeverity.info => const _SeverityStyle(
-      AppColors.primary,
-      Colors.white,
-      Icons.check_circle_outline,
-    ),
+        AppColors.primary,
+        Colors.white,
+        Icons.check_circle_outline,
+      ),
   };
 }
 

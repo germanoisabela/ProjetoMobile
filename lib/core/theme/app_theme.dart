@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
@@ -27,7 +27,7 @@ class AppTheme {
       ),
 
       // Cards brancos com cantos arredondados
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: Colors.white,
         elevation: 0,
         margin: EdgeInsets.zero,

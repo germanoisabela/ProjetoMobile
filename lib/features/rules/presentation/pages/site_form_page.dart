@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
@@ -254,15 +254,15 @@ class _SiteFormPageState extends State<SiteFormPage> {
                           controller: _minFront,
                           label: 'Recuo frontal mín.',
                           suffix: 'm',
-                          validator: _numberValidator(
-                              optional: true, allowZero: true),
+                          validator:
+                              _numberValidator(optional: true, allowZero: true),
                         ),
                         _field(
                           controller: _minSide,
                           label: 'Recuo lateral mín.',
                           suffix: 'm',
-                          validator: _numberValidator(
-                              optional: true, allowZero: true),
+                          validator:
+                              _numberValidator(optional: true, allowZero: true),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -271,8 +271,8 @@ class _SiteFormPageState extends State<SiteFormPage> {
                           controller: _minRear,
                           label: 'Recuo de fundos mín.',
                           suffix: 'm',
-                          validator: _numberValidator(
-                              optional: true, allowZero: true),
+                          validator:
+                              _numberValidator(optional: true, allowZero: true),
                         ),
                         _field(
                           controller: _maxOccupancy,
