@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartfloor/features/capture/domain/entities/capture_mode.dart';
 import 'package:smartfloor/features/capture/domain/entities/captured_input.dart';
@@ -17,8 +17,10 @@ void main() {
       const MaterialApp(home: CaptureMeasuresPage(input: input)),
     );
 
+    await tester.enterText(find.byType(TextFormField).at(0), 'Meio ambiente');
     await tester.enterText(find.byType(TextFormField).at(1), '3,5');
     await tester.enterText(find.byType(TextFormField).at(2), '2');
+    await tester.enterText(find.byType(TextFormField).at(3), '2,8');
     await tester.pump();
 
     await tester.scrollUntilVisible(
@@ -33,6 +35,7 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
 
@@ -45,6 +48,11 @@ void main() {
   });
 
   testWidgets('validates required fields and measure limits', (tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       const MaterialApp(home: CaptureMeasuresPage(input: input)),
     );
@@ -54,18 +62,22 @@ void main() {
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pump();
 
-    expect(find.text('Informe um número válido'), findsNWidgets(2));
+    expect(find.text('Informe um número válido'), findsNWidgets(3));
 
+    await tester.enterText(find.byType(TextFormField).at(0), 'Meio ambiente');
     await tester.enterText(find.byType(TextFormField).at(1), '101');
     await tester.enterText(find.byType(TextFormField).at(2), '-1');
+    await tester.enterText(find.byType(TextFormField).at(3), '2,8');
     await tester.scrollUntilVisible(
       find.text('Continuar'),
       200,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.ensureVisible(find.text('Continuar'));
     await tester.tap(find.text('Continuar'));
     await tester.pump();
 

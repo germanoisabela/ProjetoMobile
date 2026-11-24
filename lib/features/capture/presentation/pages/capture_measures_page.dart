@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
@@ -21,17 +21,17 @@ class CaptureMeasuresPage extends StatefulWidget {
 
 class _CaptureMeasuresPageState extends State<CaptureMeasuresPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  final TextEditingController _nameController = TextEditingController(
-    text: 'Meu ambiente',
-  );
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _widthController = TextEditingController();
   final TextEditingController _lengthController = TextEditingController();
+  final TextEditingController _heightController = TextEditingController();
 
   @override
   void dispose() {
     _nameController.dispose();
     _widthController.dispose();
     _lengthController.dispose();
+    _heightController.dispose();
     super.dispose();
   }
 
@@ -70,9 +70,10 @@ class _CaptureMeasuresPageState extends State<CaptureMeasuresPage> {
         .push(MaterialPageRoute(builder: (_) => PlanEditorPage(plan: plan)));
   }
 
-  InputDecoration _decoration(String label, {String? suffix}) {
+  InputDecoration _decoration(String label, {String? suffix, String? hint}) {
     return InputDecoration(
       labelText: label,
+      hintText: hint,
       suffixText: suffix,
       filled: true,
       fillColor: Colors.white,
@@ -128,7 +129,10 @@ class _CaptureMeasuresPageState extends State<CaptureMeasuresPage> {
               children: [
                 TextFormField(
                   controller: _nameController,
-                  decoration: _decoration('Nome do ambiente'),
+                  decoration: _decoration(
+                    'Nome do ambiente',
+                    hint: 'Ex: Meio ambiente',
+                  ),
                   textCapitalization: TextCapitalization.sentences,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -155,6 +159,15 @@ class _CaptureMeasuresPageState extends State<CaptureMeasuresPage> {
                     decimal: true,
                   ),
                   onChanged: (_) => setState(() {}),
+                  validator: _validateMeasure,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _heightController,
+                  decoration: _decoration('Altura', suffix: 'm'),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
                   validator: _validateMeasure,
                 ),
               ],

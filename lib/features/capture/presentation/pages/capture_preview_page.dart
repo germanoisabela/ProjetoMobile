@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/captured_input.dart';
@@ -106,12 +106,23 @@ class CapturePreviewPage extends StatelessWidget {
   /// (o mesmo widget que usaremos no editor 2D).
   Widget _buildImage() {
     return InteractiveViewer(
-      child: Image.file(
-        File(input.path),
-        fit: BoxFit.contain,
-        // Se a imagem não puder ser lida, mostramos um aviso em vez de travar.
-        errorBuilder: (context, error, stackTrace) =>
-            const Center(child: Text('Não foi possível exibir a imagem.')),
+      panEnabled: true,
+      scaleEnabled: true,
+      alignment: Alignment.center,
+      child: SizedBox.expand(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Center(
+            child: Image.file(
+              File(input.path),
+              fit: BoxFit.contain,
+              alignment: Alignment.center,
+              // Se a imagem não puder ser lida, mostramos um aviso em vez de travar.
+              errorBuilder: (context, error, stackTrace) =>
+                  const Text('Não foi possível exibir a imagem.'),
+            ),
+          ),
+        ),
       ),
     );
   }

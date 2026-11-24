@@ -24,13 +24,13 @@ class DeviceCaptureRepository implements CaptureRepository {
 
   @override
   Future<CapturedInput?> pickImageOrPdf() async {
-    final files = await FilePicker.pickFiles(
+    final files = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
     );
-    if (files.isEmpty) return null;
+    if (files == null || files.files.isEmpty) return null;
 
-    final file = files.first;
+    final file = files.files.first;
     final path = file.path;
     if (path == null) {
       throw const FileSystemException(

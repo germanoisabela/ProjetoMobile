@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartfloor/features/capture/domain/entities/capture_mode.dart';
 import 'package:smartfloor/features/capture/domain/entities/captured_input.dart';

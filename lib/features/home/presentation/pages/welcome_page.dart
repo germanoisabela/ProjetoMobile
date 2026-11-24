@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/pages/login_page.dart';
@@ -335,7 +335,7 @@ class _FloorPlanPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final gridPaint = Paint()
-      ..color = const Color(0xFF8BB39A).withValues(alpha: 0.28)
+      ..color = const Color(0xFF8BB39A).withOpacity(0.28)
       ..strokeWidth = 0.7;
     for (var x = 10.0; x < size.width; x += 12) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);

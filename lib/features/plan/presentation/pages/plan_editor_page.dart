@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
@@ -128,9 +128,8 @@ class _PlanEditorPageState extends State<PlanEditorPage> {
     final PlanViewport? viewport = _viewport;
     if (vertex == null || viewport == null) return;
 
-    final Point2D target = viewport
-        .toMeters(event.localPosition)
-        .snapTo(_snapStepM);
+    final Point2D target =
+        viewport.toMeters(event.localPosition).snapTo(_snapStepM);
     setState(() => _plan = _plan.moveVertex(vertex, target));
   }
 

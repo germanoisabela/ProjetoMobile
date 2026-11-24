@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 /// Desenha um [CustomPainter] fora da tela e devolve uma imagem PNG.
 Future<Uint8List> paintToPng(

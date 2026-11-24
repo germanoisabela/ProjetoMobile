@@ -1,4 +1,4 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartfloor/app.dart';
 
@@ -12,7 +12,8 @@ void main() {
   Future<void> openHome(WidgetTester tester) async {
     await tester.tap(find.text('Começar agora'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextFormField).at(0), 'rebeca@email.com');
+    await tester.enterText(
+        find.byType(TextFormField).at(0), 'rebeca@email.com');
     await tester.enterText(find.byType(TextFormField).at(1), '123456');
     await tester.tap(find.text('Entrar'));
     await tester.pumpAndSettle();

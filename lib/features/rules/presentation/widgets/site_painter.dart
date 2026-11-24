@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
@@ -17,7 +17,7 @@ class SitePainter extends CustomPainter {
 
   static const double _margin = 44;
   static const Color _warningColor = Color(0xFFE65100); // laranja escuro
-  static const Color _errorColor = Color(0xFFC62828);   // vermelho
+  static const Color _errorColor = Color(0xFFC62828); // vermelho
 
   @override
   void paint(Canvas canvas, Size size) {
