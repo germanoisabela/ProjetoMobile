@@ -4,6 +4,7 @@ import 'package:smartfloor/features/plan/domain/entities/plan.dart';
 import 'package:smartfloor/features/plan/domain/entities/point_2d.dart';
 import 'package:smartfloor/features/plan/presentation/pages/plan_editor_page.dart';
 import 'package:smartfloor/features/plan/presentation/widgets/plan_painter.dart';
+import 'package:smartfloor/features/home/data/repositories/mock_project_repository.dart';
 
 void main() {
   testWidgets('shows plan metrics, drawing, and editor tools', (tester) async {
@@ -28,6 +29,44 @@ void main() {
     await tester.tap(find.text('Medir'));
     await tester.pump();
     expect(find.text('Medir: em breve!'), findsOneWidget);
+  });
+
+  testWidgets('saves the plan as a project and returns to Home', (tester) async {
+    final repository = MockProjectRepository();
+    final plan = Plan.fromRectangle(name: 'Sala', widthM: 3, lengthM: 2);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (context) => Scaffold(
+            body: TextButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => PlanEditorPage(
+                      plan: plan,
+                      projectRepository: repository,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Abrir projeto'),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('Abrir projeto'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Salvar projeto'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Abrir projeto'), findsOneWidget);
+    final projects = await repository.getProjects();
+    expect(projects, hasLength(1));
+    expect(projects.single.name, 'Sala');
+    expect(projects.single.areaM2, 6);
   });
 
   testWidgets('selects a wall and updates its length', (tester) async {

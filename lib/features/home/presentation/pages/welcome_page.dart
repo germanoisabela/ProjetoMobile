@@ -3,20 +3,26 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/presentation/pages/login_page.dart';
+import '../../domain/repositories/project_repository.dart';
 
 /// Tela de apresentação exibida antes da área principal do SmartFloor.
 class WelcomePage extends StatelessWidget {
   final AuthRepository? authRepository;
+  final ProjectRepository? projectRepository;
 
   const WelcomePage({
     super.key,
     this.authRepository,
+    this.projectRepository,
   });
 
   void _openHome(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => LoginPage(authRepository: authRepository),
+        builder: (_) => LoginPage(
+          authRepository: authRepository,
+          projectRepository: projectRepository,
+        ),
       ),
     );
   }

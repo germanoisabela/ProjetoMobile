@@ -4,6 +4,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
 import 'core/config/supabase_config.dart';
+import 'features/home/data/repositories/supabase_project_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,5 +13,7 @@ Future<void> main() async {
     anonKey: supabasePublishableKey,
   );
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const SmartFloorApp());
+  runApp(
+    SmartFloorApp(projectRepository: SupabaseProjectRepository()),
+  );
 }

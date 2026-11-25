@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../home/domain/repositories/project_repository.dart';
 import '../../../rules/presentation/pages/site_form_page.dart';
 import '../../domain/entities/plan.dart';
 import '../../domain/entities/point_2d.dart';
@@ -11,8 +12,13 @@ import '../widgets/plan_viewport.dart';
 
 class PlanEditorPage extends StatefulWidget {
   final Plan plan;
+  final ProjectRepository? projectRepository;
 
-  const PlanEditorPage({super.key, required this.plan});
+  const PlanEditorPage({
+    super.key,
+    required this.plan,
+    this.projectRepository,
+  });
 
   @override
   State<PlanEditorPage> createState() => _PlanEditorPageState();
@@ -32,6 +38,7 @@ class _PlanEditorPageState extends State<PlanEditorPage> {
   int? _activePointer;
   Offset _downPosition = Offset.zero;
   bool _moved = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -186,6 +193,31 @@ class _PlanEditorPageState extends State<PlanEditorPage> {
         .showSnackBar(SnackBar(content: Text('$tool: em breve!')));
   }
 
+  Future<void> _saveProject() async {
+    final repository = widget.projectRepository;
+    if (repository == null || _isSaving) return;
+
+    setState(() => _isSaving = true);
+    try {
+      final project = await repository.createProject(
+        name: _plan.name,
+        areaM2: _plan.areaM2,
+      );
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${project.name} foi salvo nos seus projetos.')),
+      );
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _isSaving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Não foi possível salvar o projeto: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -195,6 +227,19 @@ class _PlanEditorPageState extends State<PlanEditorPage> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         actions: [
+          IconButton(
+            icon: _isSaving
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.save_outlined),
+            tooltip: 'Salvar projeto',
+            onPressed: _isSaving || widget.projectRepository == null
+                ? null
+                : _saveProject,
+          ),
           IconButton(
             icon: const Icon(Icons.restart_alt),
             tooltip: 'Restaurar medidas originais',

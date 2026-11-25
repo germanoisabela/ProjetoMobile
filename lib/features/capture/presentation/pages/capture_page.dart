@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../home/domain/repositories/project_repository.dart';
 import '../../data/repositories/device_capture_repository.dart';
 import '../../domain/entities/capture_mode.dart';
 import '../../domain/entities/captured_input.dart';
@@ -30,10 +31,12 @@ class _CaptureOption {
 /// Etapa 1 do fluxo: o usuário escolhe COMO quer capturar o ambiente.
 class CapturePage extends StatefulWidget {
   final CaptureRepository repository;
+  final ProjectRepository? projectRepository;
 
   const CapturePage({
     super.key,
     this.repository = const DeviceCaptureRepository(),
+    this.projectRepository,
   });
 
   @override
@@ -96,7 +99,12 @@ class _CapturePageState extends State<CapturePage> {
       if (input == null || !context.mounted) return;
 
       await Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => CapturePreviewPage(input: input!)),
+        MaterialPageRoute(
+          builder: (_) => CapturePreviewPage(
+            input: input!,
+            projectRepository: widget.projectRepository,
+          ),
+        ),
       );
     } on PlatformException {
       if (context.mounted) {

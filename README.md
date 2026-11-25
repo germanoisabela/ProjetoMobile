@@ -36,6 +36,11 @@ A chave publishable e destinada ao cliente. Nunca use a chave `secret` ou
 cidade e idade como metadados do usuario no Supabase Auth. Com confirmacao de
 e-mail habilitada, o usuario precisa confirmar o endereco antes de entrar.
 
+Os projetos ficam vinculados ao usuario autenticado no Supabase. Antes de usar
+esse recurso, execute o SQL de
+[criacao da tabela e das politicas de acesso](./supabase/migrations/20261125160500_create_projects.sql)
+no SQL Editor do seu projeto Supabase.
+
 ## Validar
 
 ```sh

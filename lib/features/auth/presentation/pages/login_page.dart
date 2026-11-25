@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../home/domain/repositories/project_repository.dart';
 import '../../../home/presentation/pages/home_page.dart';
 import '../../data/repositories/supabase_auth_repository.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -9,10 +10,12 @@ import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
   final AuthRepository? authRepository;
+  final ProjectRepository? projectRepository;
 
   const LoginPage({
     super.key,
     this.authRepository,
+    this.projectRepository,
   });
 
   @override
@@ -50,6 +53,7 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(
           builder: (_) => HomePage(
+            repository: widget.projectRepository,
             userName: user.name,
             userEmail: user.email,
           ),
@@ -90,7 +94,10 @@ class _LoginPageState extends State<LoginPage> {
   void _openRegister() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => RegisterPage(authRepository: widget.authRepository),
+        builder: (_) => RegisterPage(
+          authRepository: widget.authRepository,
+          projectRepository: widget.projectRepository,
+        ),
       ),
     );
   }

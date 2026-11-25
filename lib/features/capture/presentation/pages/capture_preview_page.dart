@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../home/domain/repositories/project_repository.dart';
 import '../../domain/entities/captured_input.dart';
 import '../widgets/capture_step_indicator.dart';
 import 'capture_measures_page.dart';
@@ -10,8 +11,13 @@ import 'capture_measures_page.dart';
 /// Etapa 2 do fluxo: o usuário confere o arquivo escolhido.
 class CapturePreviewPage extends StatelessWidget {
   final CapturedInput input;
+  final ProjectRepository? projectRepository;
 
-  const CapturePreviewPage({super.key, required this.input});
+  const CapturePreviewPage({
+    super.key,
+    required this.input,
+    this.projectRepository,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +92,10 @@ class CapturePreviewPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => CaptureMeasuresPage(input: input),
+                            builder: (_) => CaptureMeasuresPage(
+                              input: input,
+                              projectRepository: projectRepository,
+                            ),
                           ),
                         );
                       },
