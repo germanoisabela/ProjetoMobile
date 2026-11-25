@@ -1,15 +1,23 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/presentation/pages/login_page.dart';
 
 /// Tela de apresentação exibida antes da área principal do SmartFloor.
 class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
+  final AuthRepository? authRepository;
+
+  const WelcomePage({
+    super.key,
+    this.authRepository,
+  });
 
   void _openHome(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+      MaterialPageRoute<void>(
+        builder: (_) => LoginPage(authRepository: authRepository),
+      ),
     );
   }
 
@@ -46,13 +54,7 @@ class WelcomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Center(
-                    child: Icon(
-                      Icons.home_work_rounded,
-                      size: 48,
-                      color: AppColors.primary,
-                    ),
-                  ),
+                  const Center(child: _BrandMark()),
                   const SizedBox(height: 16),
                   Text(
                     'SmartFloor',
@@ -105,6 +107,9 @@ class WelcomePage extends StatelessWidget {
                       minimumSize: const Size.fromHeight(48),
                       backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
                     ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
@@ -120,8 +125,12 @@ class WelcomePage extends StatelessWidget {
                     onPressed: () => _showMore(context),
                     style: OutlinedButton.styleFrom(
                       minimumSize: const Size.fromHeight(44),
+                      backgroundColor: Colors.white,
                       foregroundColor: AppColors.primary,
                       side: BorderSide.none,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(28),
+                      ),
                     ),
                     child: const Text('Saiba mais'),
                   ),
@@ -133,6 +142,85 @@ class WelcomePage extends StatelessWidget {
       ),
     );
   }
+}
+
+class _BrandMark extends StatelessWidget {
+  const _BrandMark();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SizedBox(
+      width: 48,
+      height: 48,
+      child: CustomPaint(painter: _BrandMarkPainter()),
+    );
+  }
+}
+
+class _BrandMarkPainter extends CustomPainter {
+  const _BrandMarkPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final outlinePaint = Paint()
+      ..color = AppColors.primary
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3.5
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+    final house = Path()
+      ..moveTo(size.width * 0.16, size.height * 0.43)
+      ..lineTo(size.width * 0.5, size.height * 0.14)
+      ..lineTo(size.width * 0.84, size.height * 0.43)
+      ..lineTo(size.width * 0.84, size.height * 0.8)
+      ..quadraticBezierTo(
+        size.width * 0.84,
+        size.height * 0.87,
+        size.width * 0.77,
+        size.height * 0.87,
+      )
+      ..lineTo(size.width * 0.23, size.height * 0.87)
+      ..quadraticBezierTo(
+        size.width * 0.16,
+        size.height * 0.87,
+        size.width * 0.16,
+        size.height * 0.8,
+      )
+      ..close();
+    canvas.drawPath(house, outlinePaint);
+
+    final leafPaint = Paint()
+      ..color = AppColors.primary
+      ..style = PaintingStyle.fill;
+    final leaf = Path()
+      ..moveTo(size.width * 0.48, size.height * 0.67)
+      ..cubicTo(
+        size.width * 0.39,
+        size.height * 0.52,
+        size.width * 0.53,
+        size.height * 0.37,
+        size.width * 0.67,
+        size.height * 0.34,
+      )
+      ..cubicTo(
+        size.width * 0.68,
+        size.height * 0.49,
+        size.width * 0.61,
+        size.height * 0.61,
+        size.width * 0.48,
+        size.height * 0.67,
+      )
+      ..close();
+    canvas.drawPath(leaf, leafPaint);
+    canvas.drawLine(
+      Offset(size.width * 0.46, size.height * 0.68),
+      Offset(size.width * 0.61, size.height * 0.45),
+      outlinePaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _BrandMarkPainter oldDelegate) => false;
 }
 
 class _FeatureCard extends StatelessWidget {
@@ -184,66 +272,11 @@ class _RoomPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: SizedBox(
         height: 190,
-        child: Stack(
-          children: [
-            const Positioned.fill(child: _RoomIllustration()),
-            Positioned(
-              right: 10,
-              bottom: 10,
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 7,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x22000000),
-                      blurRadius: 12,
-                      offset: Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.check_circle,
-                      color: Color(0xFF2E9C61),
-                      size: 19,
-                    ),
-                    const SizedBox(width: 7),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Planta 2D/3D',
-                          style: textTheme.labelMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          'Com medidas reais',
-                          style: textTheme.labelSmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+        child: const _RoomIllustration(),
       ),
     );
   }

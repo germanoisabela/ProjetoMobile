@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 
 import 'core/theme/app_theme.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/home/presentation/pages/welcome_page.dart';
 
 /// Widget raiz do app: configura tema e define a primeira tela.
 class SmartFloorApp extends StatelessWidget {
-  const SmartFloorApp({super.key});
+  final AuthRepository? authRepository;
+
+  const SmartFloorApp({
+    super.key,
+    this.authRepository,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +19,7 @@ class SmartFloorApp extends StatelessWidget {
       title: 'SmartFloor',
       debugShowCheckedModeBanner: false, // remove a faixa "DEBUG"
       theme: AppTheme.light,
-      home: const WelcomePage(),
+      home: WelcomePage(authRepository: authRepository),
     );
   }
 }

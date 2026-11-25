@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../home/presentation/pages/home_page.dart';
+import '../../data/repositories/supabase_auth_repository.dart';
+import '../../domain/repositories/auth_repository.dart';
 
 class RegisterPage extends StatefulWidget {
-  const RegisterPage({super.key});
+  final AuthRepository? authRepository;
+
+  const RegisterPage({
+    super.key,
+    this.authRepository,
+  });
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -24,6 +32,10 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmation = true;
   bool _acceptedTerms = false;
+  bool _isSubmitting = false;
+
+  AuthRepository get _authRepository =>
+      widget.authRepository ?? SupabaseAuthRepository();
 
   @override
   void dispose() {
@@ -39,7 +51,7 @@ class _RegisterPageState extends State<RegisterPage> {
     super.dispose();
   }
 
-  void _register() {
+  Future<void> _register() async {
     if (!_acceptedTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -51,15 +63,58 @@ class _RegisterPageState extends State<RegisterPage> {
     }
     if (!_formKey.currentState!.validate()) return;
 
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(
-        builder: (_) => HomePage(
-          userName: _nameController.text.trim(),
-          userEmail: _emailController.text.trim(),
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    try {
+      final user = await _authRepository.signUp(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+        phone: _phoneController.text.trim(),
+        whatsapp: _whatsappController.text.trim(),
+        cep: _cepController.text.trim().isEmpty
+            ? null
+            : _cepController.text.trim(),
+        city: _cityController.text.trim().isEmpty
+            ? null
+            : _cityController.text.trim(),
+        age: int.tryParse(_ageController.text.trim()),
+      );
+      if (!mounted) return;
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Cadastro criado. Confirme seu e-mail antes de entrar.',
+            ),
+          ),
+        );
+        return;
+      }
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (_) => HomePage(
+            userName: user.name,
+            userEmail: user.email,
+          ),
         ),
-      ),
-      (route) => false,
-    );
+        (route) => false,
+      );
+    } on AuthException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.message)),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Não foi possível criar a conta: $error')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   InputDecoration _decoration({
@@ -326,7 +381,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         const SizedBox(height: 9),
                         FilledButton(
-                          onPressed: _register,
+                          onPressed: _isSubmitting ? null : _register,
                           style: FilledButton.styleFrom(
                             minimumSize: const Size.fromHeight(50),
                             backgroundColor: const Color(0xFF244F43),
@@ -337,13 +392,21 @@ class _RegisterPageState extends State<RegisterPage> {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: const Text(
-                            'Continuar',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15,
-                            ),
-                          ),
+                          child: _isSubmitting
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text(
+                                  'Continuar',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                  ),
+                                ),
                         ),
                       ],
                     ),
