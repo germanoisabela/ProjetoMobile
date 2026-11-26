@@ -15,4 +15,15 @@ class Project {
     required this.areaM2,
     required this.createdAt,
   });
+
+  factory Project.fromJson(Map<String, dynamic> json) {
+    final area = json['area_m2'];
+
+    return Project(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      areaM2: area is num ? area.toDouble() : double.parse(area as String),
+      createdAt: DateTime.parse(json['created_at'] as String).toLocal(),
+    );
+  }
 }

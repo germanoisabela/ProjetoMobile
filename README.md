@@ -22,31 +22,24 @@ flutter run
 O `pubspec.lock` esta versionado para manter as mesmas versoes das dependencias
 em diferentes maquinas.
 
-## Firebase local
+## Supabase
 
-Em modo debug, o aplicativo conecta Firebase Auth e Cloud Firestore aos
-emuladores locais. Para inicia-los, instale o Firebase CLI e execute na raiz do
-projeto:
-
-```sh
-firebase emulators:start --project smartfloor-7b835 --only auth,firestore
-```
-
-No emulador Android, o endereco `10.0.2.2` aponta para a maquina que executa os
-emuladores; nao e necessario configurar nada adicional. Em um dispositivo
-fisico, informe o endereco IP da maquina na mesma rede:
+O app usa o Supabase Auth para login, cadastro e recuperacao de senha. A URL do
+projeto e a chave publica `publishable` podem ser substituidas no build:
 
 ```sh
-flutter run --dart-define=FIREBASE_EMULATOR_HOST=192.168.1.10
+flutter run --dart-define=SUPABASE_URL=https://<project-ref>.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=<publishable-key>
 ```
 
-Substitua o IP pelo endereco correto da maquina que hospeda os emuladores. Em
-outras plataformas, o padrao e `localhost`.
+A chave publishable e destinada ao cliente. Nunca use a chave `secret` ou
+`service_role` no aplicativo. O cadastro envia nome, telefone, WhatsApp, CEP,
+cidade e idade como metadados do usuario no Supabase Auth. Com confirmacao de
+e-mail habilitada, o usuario precisa confirmar o endereco antes de entrar.
 
-As configuracoes Firebase para Android estao no repositorio. Para adicionar
-outra plataforma, configure-a no Firebase e gere novamente as opcoes com o
-FlutterFire CLI. Builds release conectam ao projeto Firebase configurado, nao
-aos emuladores locais.
+Os projetos ficam vinculados ao usuario autenticado no Supabase. Antes de usar
+esse recurso, execute o SQL de
+[criacao da tabela e das politicas de acesso](./supabase/migrations/20261125160500_create_projects.sql)
+no SQL Editor do seu projeto Supabase.
 
 ## Validar
 

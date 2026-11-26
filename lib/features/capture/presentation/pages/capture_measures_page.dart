@@ -4,16 +4,23 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../home/domain/repositories/project_repository.dart';
+import '../../../plan/domain/entities/floor_plan.dart';
 import '../../../plan/domain/entities/plan.dart';
-import '../../../plan/presentation/pages/plan_editor_page.dart';
+import '../../../plan/presentation/pages/floor_plan_editor_page.dart';
 import '../../domain/entities/captured_input.dart';
 import '../widgets/capture_step_indicator.dart';
 
 /// Etapa 3 do fluxo: o usuário informa as medidas do ambiente.
 class CaptureMeasuresPage extends StatefulWidget {
   final CapturedInput input;
+  final ProjectRepository? projectRepository;
 
-  const CaptureMeasuresPage({super.key, required this.input});
+  const CaptureMeasuresPage({
+    super.key,
+    required this.input,
+    this.projectRepository,
+  });
 
   @override
   State<CaptureMeasuresPage> createState() => _CaptureMeasuresPageState();
@@ -60,14 +67,23 @@ class _CaptureMeasuresPageState extends State<CaptureMeasuresPage> {
   void _onContinue() {
     if (!_formKey.currentState!.validate()) return;
 
-    final Plan plan = Plan.fromRectangle(
+    final Plan room = Plan.fromRectangle(
       name: _nameController.text.trim(),
       widthM: _parse(_widthController.text)!,
       lengthM: _parse(_lengthController.text)!,
     );
 
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (_) => PlanEditorPage(plan: plan)));
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => FloorPlanEditorPage(
+          initialPlan: FloorPlan(
+            name: room.name,
+            rooms: [room],
+          ),
+          projectRepository: widget.projectRepository,
+        ),
+      ),
+    );
   }
 
   InputDecoration _decoration(String label, {String? suffix, String? hint}) {

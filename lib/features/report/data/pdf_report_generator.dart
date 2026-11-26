@@ -4,6 +4,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../core/utils/formatters.dart';
+import '../../plan/domain/entities/floor_plan.dart';
 import '../../plan/domain/entities/plan.dart';
 import '../../rules/domain/entities/building_alert.dart';
 import '../../rules/domain/entities/rule_settings.dart';
@@ -31,17 +32,20 @@ class PdfReportGenerator {
     required RuleSettings settings,
     required Uint8List planImage,
     required Uint8List siteImage,
+    FloorPlan? floorPlan,
     DateTime? generatedAt,
   }) async {
     final List<BuildingAlert> alerts = const BuildingRuleChecker().check(
       plan: plan,
       site: site,
       settings: settings,
+      occupiedAreaM2: floorPlan?.builtAreaM2,
     );
     final List<Suggestion> suggestions = const SuggestionEngine().suggest(
       plan: plan,
       site: site,
       settings: settings,
+      occupiedAreaM2: floorPlan?.builtAreaM2,
     );
     final DateTime date = generatedAt ?? DateTime.now();
 
@@ -52,6 +56,7 @@ class PdfReportGenerator {
 
     final pw.MemoryImage planPicture = pw.MemoryImage(planImage);
     final pw.MemoryImage sitePicture = pw.MemoryImage(siteImage);
+    final double builtArea = floorPlan?.builtAreaM2 ?? plan.areaM2;
 
     doc.addPage(
       pw.MultiPage(
@@ -63,13 +68,36 @@ class PdfReportGenerator {
           _section('Resumo da planta'),
           pw.Row(
             children: [
-              _metric('${formatDecimal(plan.areaM2)} m²', 'Área'),
+              _metric('${formatDecimal(builtArea)} m²', 'Área construída'),
               pw.SizedBox(width: 8),
               _metric('${formatDecimal(plan.perimeterM)} m', 'Perímetro'),
-              pw.SizedBox(width: 8),
-              _metric('${plan.walls.length}', 'Paredes'),
+              if (floorPlan == null) ...[
+                pw.SizedBox(width: 8),
+                _metric('${plan.walls.length}', 'Paredes'),
+              ] else ...[
+                pw.SizedBox(width: 8),
+                _metric('${floorPlan.rooms.length}', 'Cômodos'),
+              ],
             ],
           ),
+          if (floorPlan != null) ...[
+            _section('Cômodos'),
+            for (final Plan room in floorPlan.rooms)
+              pw.Container(
+                width: double.infinity,
+                margin: pw.EdgeInsets.only(bottom: 5),
+                padding: pw.EdgeInsets.symmetric(horizontal: 9, vertical: 6),
+                decoration: pw.BoxDecoration(
+                  color: _light,
+                  borderRadius: pw.BorderRadius.circular(5),
+                ),
+                child: pw.Text(
+                  '${room.name}: ${formatDecimal(room.areaM2)} m² '
+                  '(${room.vertices.length} paredes)',
+                  style: pw.TextStyle(fontSize: 10),
+                ),
+              ),
+          ],
           _section('Planta baixa com medições'),
           _picture(planPicture),
           pw.SizedBox(height: 8),
@@ -83,7 +111,7 @@ class PdfReportGenerator {
                 ),
             ],
           ),
-          _section('Terreno e posição da construção'),
+          _section('Terreno e posição da construção (aproximação retangular)'),
           pw.Text(
             'Terreno de ${formatDecimal(site.widthM)} x '
             '${formatDecimal(site.lengthM)} m '

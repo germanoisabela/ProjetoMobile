@@ -76,4 +76,27 @@ void main() {
 
     expect(_count(alerts, AlertSeverity.error), 1);
   });
+
+  test('uses the summed room area for floor plan occupancy', () {
+    final Plan boundingBox =
+        Plan.rectangle(name: 'Construção', widthM: 4, lengthM: 4);
+    const Site site = Site(
+      widthM: 10,
+      lengthM: 10,
+      frontSetbackM: 3,
+      leftSetbackM: 3,
+    );
+    final List<BuildingAlert> alerts = checker.check(
+      plan: boundingBox,
+      site: site,
+      settings: const RuleSettings(maxOccupancyPercent: 10),
+      occupiedAreaM2: 8,
+    );
+
+    expect(_count(alerts, AlertSeverity.error), 0);
+    expect(
+      alerts.any((alert) => alert.message.contains('8,00 m²')),
+      isTrue,
+    );
+  });
 }

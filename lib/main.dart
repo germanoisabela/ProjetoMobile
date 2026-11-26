@@ -1,32 +1,19 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kDebugMode, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'app.dart';
-import 'firebase_options.dart';
-
-String get _firebaseEmulatorHost {
-  const configuredHost = String.fromEnvironment('FIREBASE_EMULATOR_HOST');
-  if (configuredHost.isNotEmpty) return configuredHost;
-  return defaultTargetPlatform == TargetPlatform.android
-      ? '10.0.2.2'
-      : 'localhost';
-}
+import 'core/config/supabase_config.dart';
+import 'features/home/data/repositories/supabase_project_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  if (kDebugMode) {
-    FirebaseFirestore.instance.useFirestoreEmulator(
-      _firebaseEmulatorHost,
-      8080,
-    );
-    await FirebaseAuth.instance.useAuthEmulator(_firebaseEmulatorHost, 9099);
-  }
+  await Supabase.initialize(
+    url: supabaseUrl,
+    anonKey: supabasePublishableKey,
+  );
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const SmartFloorApp());
+  runApp(
+    SmartFloorApp(projectRepository: SupabaseProjectRepository()),
+  );
 }

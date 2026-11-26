@@ -1,8 +1,48 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartfloor/app.dart';
+import 'package:smartfloor/features/auth/domain/entities/auth_user.dart';
+import 'package:smartfloor/features/auth/domain/repositories/auth_repository.dart';
+import 'package:smartfloor/features/home/data/repositories/mock_project_repository.dart';
+import 'package:smartfloor/features/home/domain/entities/project.dart';
+
+class _FakeAuthRepository implements AuthRepository {
+  final String signedInName;
+
+  const _FakeAuthRepository({this.signedInName = 'Rebeca'});
+
+  @override
+  Future<AuthUser> signIn({
+    required String email,
+    required String password,
+  }) async {
+    return AuthUser(
+      name: signedInName,
+      email: email,
+    );
+  }
+
+  @override
+  Future<AuthUser?> signUp({
+    required String name,
+    required String email,
+    required String password,
+    required String phone,
+    required String whatsapp,
+    String? cep,
+    String? city,
+    int? age,
+  }) async {
+    return AuthUser(name: name, email: email);
+  }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) async {}
+}
 
 void main() {
+  const authRepository = _FakeAuthRepository();
+
   void useTallScreen(WidgetTester tester) {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
@@ -64,6 +104,7 @@ void main() {
     expect(find.text('Imagem ou PDF'), findsOneWidget);
     expect(find.text('Plantas'), findsOneWidget);
     expect(find.text('Saiba mais'), findsOneWidget);
+    expect(find.text('Planta 2D/3D'), findsNothing);
   });
 
   testWidgets('Saiba mais explica os recursos do aplicativo', (
@@ -79,25 +120,95 @@ void main() {
     expect(find.text('Entendi'), findsOneWidget);
   });
 
-  testWidgets('Home mostra saudação, atalho de captura e projetos', (
+  testWidgets('Home cumprimenta o usuário e começa sem projetos de exemplo', (
     WidgetTester tester,
   ) async {
     useTallScreen(tester);
-    await tester.pumpWidget(const SmartFloorApp());
+    await tester.pumpWidget(
+      const SmartFloorApp(
+        authRepository: _FakeAuthRepository(signedInName: 'Ana'),
+      ),
+    );
     await openHome(tester);
 
-    expect(find.text('Olá, Rebeca!'), findsOneWidget);
+    expect(find.text('Olá, Ana!'), findsOneWidget);
     expect(find.text('Capturar novo ambiente'), findsOneWidget);
-    expect(find.text('Casa da família'), findsOneWidget);
-    expect(find.text('Apartamento'), findsOneWidget);
-    expect(find.text('Escritório'), findsOneWidget);
+    expect(find.text('Você ainda não tem projetos.'), findsOneWidget);
+    expect(find.text('Casa da família'), findsNothing);
+    expect(find.text('Apartamento'), findsNothing);
+    expect(find.text('Escritório'), findsNothing);
+  });
+
+  testWidgets('Home mostra projetos retornados pelo repositório', (
+    WidgetTester tester,
+  ) async {
+    useTallScreen(tester);
+    final repository = MockProjectRepository(
+      initialProjects: [
+        Project(
+          id: 'sala-1',
+          name: 'Sala de estar',
+          areaM2: 18,
+          createdAt: DateTime(2026, 1, 5),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      SmartFloorApp(
+        authRepository: authRepository,
+        projectRepository: repository,
+      ),
+    );
+    await openHome(tester);
+
+    expect(find.text('Sala de estar'), findsOneWidget);
+    expect(find.text('Você ainda não tem projetos.'), findsNothing);
+  });
+
+  testWidgets('login usa o perfil retornado pela autenticação', (
+    WidgetTester tester,
+  ) async {
+    useTallScreen(tester);
+    await tester.pumpWidget(
+      const SmartFloorApp(
+        authRepository: _FakeAuthRepository(signedInName: 'Ana'),
+      ),
+    );
+    await openHome(tester);
+
+    expect(find.text('Olá, Ana!'), findsOneWidget);
+  });
+
+  testWidgets('perfil mostra nome e e-mail retornados pela autenticação', (
+    WidgetTester tester,
+  ) async {
+    useTallScreen(tester);
+    await tester.pumpWidget(
+      const SmartFloorApp(
+        authRepository: _FakeAuthRepository(signedInName: 'Ana'),
+      ),
+    );
+    await openHome(tester);
+    await tester.tap(find.text('Perfil'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ana'), findsOneWidget);
+    expect(find.text('rebeca@email.com'), findsOneWidget);
+    expect(find.text('Resumo do perfil'), findsOneWidget);
+    expect(find.text('Configurações'), findsOneWidget);
+    expect(find.text('Preferências'), findsOneWidget);
+    expect(find.text('Ambientes'), findsOneWidget);
+    expect(find.text('Ajuda'), findsOneWidget);
+    expect(find.text('Sobre o aplicativo'), findsOneWidget);
   });
 
   testWidgets('tocar no atalho abre a tela de captura com as 3 opções', (
     WidgetTester tester,
   ) async {
     useTallScreen(tester);
-    await tester.pumpWidget(const SmartFloorApp());
+    await tester.pumpWidget(
+      const SmartFloorApp(authRepository: authRepository),
+    );
     await openHome(tester);
 
     await tester.tap(find.text('Capturar novo ambiente'));
@@ -114,7 +225,9 @@ void main() {
     WidgetTester tester,
   ) async {
     useTallScreen(tester);
-    await tester.pumpWidget(const SmartFloorApp());
+    await tester.pumpWidget(
+      const SmartFloorApp(authRepository: authRepository),
+    );
     await openHome(tester);
 
     await tester.tap(find.text('Capturar novo ambiente'));

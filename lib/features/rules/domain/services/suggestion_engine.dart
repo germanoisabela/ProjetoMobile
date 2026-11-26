@@ -19,6 +19,7 @@ class SuggestionEngine {
     required Plan plan,
     required Site site,
     required RuleSettings settings,
+    double? occupiedAreaM2,
   }) {
     // Mínimos de cada lado: o maior entre 1,50 m (Art. 1.301) e o do município.
     final double minSide = math.max(
@@ -36,7 +37,8 @@ class SuggestionEngine {
     // Cada função devolve uma sugestão ou null (nada a sugerir).
     final Suggestion? horizontal = _horizontal(plan, site, minSide);
     final Suggestion? vertical = _vertical(plan, site, minRear, minFront);
-    final Suggestion? occupancy = _occupancy(plan, site, settings);
+    final Suggestion? occupancy =
+        _occupancy(plan, site, settings, occupiedAreaM2);
 
     if (horizontal != null) suggestions.add(horizontal);
     if (vertical != null) suggestions.add(vertical);
@@ -124,9 +126,8 @@ class SuggestionEngine {
       final String action = delta > 0
           ? 'Afaste a construção da rua'
           : 'Aproxime a construção da rua';
-      final String frontRule = minFront > 0
-          ? ' e ${formatDecimal(minFront)} m na frente'
-          : '';
+      final String frontRule =
+          minFront > 0 ? ' e ${formatDecimal(minFront)} m na frente' : '';
 
       return Suggestion(
         title: '$action em ${formatDecimal(delta.abs())} m',
@@ -158,21 +159,27 @@ class SuggestionEngine {
   }
 
   // ---------- Taxa de ocupação ----------
-  Suggestion? _occupancy(Plan plan, Site site, RuleSettings settings) {
+  Suggestion? _occupancy(
+    Plan plan,
+    Site site,
+    RuleSettings settings,
+    double? occupiedAreaM2,
+  ) {
     final double maxPercent = settings.maxOccupancyPercent;
     if (maxPercent <= 0) return null; // limite não informado
 
-    final double occupancy = plan.areaM2 / site.areaM2 * 100;
+    final double areaM2 = occupiedAreaM2 ?? plan.areaM2;
+    final double occupancy = areaM2 / site.areaM2 * 100;
     if (occupancy <= maxPercent + 0.01) return null; // dentro do limite
 
     final double maxArea = site.areaM2 * maxPercent / 100;
-    final double excess = plan.areaM2 - maxArea;
+    final double excess = areaM2 - maxArea;
 
     return Suggestion(
       title: 'Reduza a área construída em ${formatDecimal(excess)} m²',
       message: 'Para respeitar o limite de ${formatDecimal(maxPercent)}%, '
           'a construção pode ter no máximo ${formatDecimal(maxArea)} m² '
-          '(hoje tem ${formatDecimal(plan.areaM2)} m²).',
+          '(hoje tem ${formatDecimal(areaM2)} m²).',
     );
   }
 }

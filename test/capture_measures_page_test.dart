@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:smartfloor/features/capture/domain/entities/capture_mode.dart';
 import 'package:smartfloor/features/capture/domain/entities/captured_input.dart';
 import 'package:smartfloor/features/capture/presentation/pages/capture_measures_page.dart';
-import 'package:smartfloor/features/plan/presentation/pages/plan_editor_page.dart';
+import 'package:smartfloor/features/plan/presentation/pages/floor_plan_editor_page.dart';
 
 void main() {
   const input = CapturedInput(
@@ -39,11 +39,9 @@ void main() {
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(PlanEditorPage), findsOneWidget);
-    expect(find.text('Área'), findsOneWidget);
-    expect(find.text('7,00 m²'), findsOneWidget);
-    expect(find.text('11,00 m'), findsOneWidget);
-    expect(find.text('Paredes'), findsOneWidget);
+    expect(find.byType(FloorPlanEditorPage), findsOneWidget);
+    expect(find.textContaining('7,00 m²'), findsOneWidget);
+    expect(find.text('Adicionar cômodo'), findsOneWidget);
     expect(find.byType(CustomPaint), findsWidgets);
   });
 

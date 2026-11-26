@@ -12,7 +12,12 @@ class DeviceCaptureRepository implements CaptureRepository {
 
   @override
   Future<CapturedInput?> pickFromCamera() async {
-    final image = await ImagePicker().pickImage(source: ImageSource.camera);
+    final image = await ImagePicker().pickImage(
+      source: ImageSource.camera,
+      maxWidth: 2048,
+      maxHeight: 2048,
+      imageQuality: 85,
+    );
     if (image == null) return null;
 
     return CapturedInput(
@@ -24,7 +29,7 @@ class DeviceCaptureRepository implements CaptureRepository {
 
   @override
   Future<CapturedInput?> pickImageOrPdf() async {
-    final files = await FilePicker.platform.pickFiles(
+    final files = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
     );

@@ -11,6 +11,7 @@ class GreetingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    final name = userName.trim();
 
     return Card(
       child: Padding(
@@ -19,7 +20,7 @@ class GreetingCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Olá, $userName!',
+              name.isEmpty ? 'Olá!' : 'Olá, $name!',
               style: textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),

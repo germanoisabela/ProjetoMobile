@@ -1,11 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../home/domain/repositories/project_repository.dart';
 import '../../../home/presentation/pages/home_page.dart';
+import '../../data/repositories/supabase_auth_repository.dart';
+import '../../domain/repositories/auth_repository.dart';
 import 'register_page.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final AuthRepository? authRepository;
+  final ProjectRepository? projectRepository;
+
+  const LoginPage({
+    super.key,
+    this.authRepository,
+    this.projectRepository,
+  });
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -16,6 +27,11 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isSubmitting = false;
+  bool _isSendingReset = false;
+
+  AuthRepository get _authRepository =>
+      widget.authRepository ?? SupabaseAuthRepository();
 
   @override
   void dispose() {
@@ -24,17 +40,65 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  void _enter() {
+  Future<void> _enter() async {
     if (!_formKey.currentState!.validate()) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute<void>(builder: (_) => const HomePage()),
-      (route) => false,
-    );
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+    try {
+      final user = await _authRepository.signIn(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      if (!mounted) return;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute<void>(
+          builder: (_) => HomePage(
+            repository: widget.projectRepository,
+            userName: user.name,
+            userEmail: user.email,
+          ),
+        ),
+        (route) => false,
+      );
+    } on AuthException catch (error) {
+      if (mounted) _showMessage(error.message);
+    } catch (error) {
+      if (mounted) _showMessage('Não foi possível entrar: $error');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  Future<void> _recoverPassword() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty || !email.contains('@') || !email.contains('.')) {
+      _showMessage('Informe um e-mail válido para recuperar sua senha.');
+      return;
+    }
+    if (_isSendingReset) return;
+    setState(() => _isSendingReset = true);
+    try {
+      await _authRepository.sendPasswordResetEmail(email);
+      if (mounted) {
+        _showMessage('Enviamos as instruções de recuperação para seu e-mail.');
+      }
+    } on AuthException catch (error) {
+      if (mounted) _showMessage(error.message);
+    } catch (error) {
+      if (mounted) _showMessage('Não foi possível enviar o e-mail: $error');
+    } finally {
+      if (mounted) setState(() => _isSendingReset = false);
+    }
   }
 
   void _openRegister() {
     Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => const RegisterPage()),
+      MaterialPageRoute<void>(
+        builder: (_) => RegisterPage(
+          authRepository: widget.authRepository,
+          projectRepository: widget.projectRepository,
+        ),
+      ),
     );
   }
 
@@ -193,9 +257,7 @@ class _LoginPageState extends State<LoginPage> {
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () => _showMessage(
-                          'Recuperação de senha: em breve!',
-                        ),
+                        onPressed: _isSendingReset ? null : _recoverPassword,
                         style: TextButton.styleFrom(
                           foregroundColor: AppColors.primary,
                         ),
@@ -203,19 +265,25 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     FilledButton(
-                      onPressed: _enter,
+                      onPressed: _isSubmitting ? null : _enter,
                       style: FilledButton.styleFrom(
                         minimumSize: const Size.fromHeight(48),
                         backgroundColor: AppColors.primary,
                       ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('Entrar'),
-                          SizedBox(width: 8),
-                          Icon(Icons.arrow_forward_rounded, size: 18),
-                        ],
-                      ),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text('Entrar'),
+                                SizedBox(width: 8),
+                                Icon(Icons.arrow_forward_rounded, size: 18),
+                              ],
+                            ),
                     ),
                     const SizedBox(height: 12),
                     OutlinedButton.icon(
