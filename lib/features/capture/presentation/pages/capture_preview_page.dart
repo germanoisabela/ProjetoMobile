@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../home/domain/repositories/project_repository.dart';
+import '../../../plan/domain/entities/floor_plan.dart';
+import '../../../plan/presentation/pages/floor_plan_editor_page.dart';
 import '../../domain/entities/captured_input.dart';
 import '../widgets/capture_step_indicator.dart';
 import 'capture_measures_page.dart';
@@ -92,8 +94,10 @@ class CapturePreviewPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (_) => CaptureMeasuresPage(
-                              input: input,
+                            builder: (_) => FloorPlanEditorPage(
+                              initialPlan: FloorPlan(name: input.name),
+                              underlayPath: input.path,
+                              underlayIsPdf: input.isPdf,
                               projectRepository: projectRepository,
                             ),
                           ),
@@ -103,6 +107,21 @@ class CapturePreviewPage extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => CaptureMeasuresPage(
+                          input: input,
+                          projectRepository: projectRepository,
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text('Prefiro informar as medidas'),
+                ),
               ),
             ],
           ),
@@ -125,6 +144,7 @@ class CapturePreviewPage extends StatelessWidget {
             child: Image.file(
               File(input.path),
               fit: BoxFit.contain,
+              cacheWidth: 1600,
               alignment: Alignment.center,
               // Se a imagem não puder ser lida, mostramos um aviso em vez de travar.
               errorBuilder: (context, error, stackTrace) =>

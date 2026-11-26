@@ -7,9 +7,9 @@ import '../entities/site.dart';
 /// Um lado do terreno, com a distância da construção até ele.
 /// Classe privada (começa com "_"): só este arquivo usa.
 class _Side {
-  final String name;        // "esquerda", "direita", "fundos", "frente"
-  final double distanceM;   // distância da construção até a divisa
-  final bool isNeighbor;    // true = divisa com vizinho; false = rua
+  final String name; // "esquerda", "direita", "fundos", "frente"
+  final double distanceM; // distância da construção até a divisa
+  final bool isNeighbor; // true = divisa com vizinho; false = rua
   final double minSetbackM; // recuo mínimo do município (0 = não verificar)
 
   const _Side({
@@ -37,6 +37,7 @@ class BuildingRuleChecker {
     required Plan plan,
     required Site site,
     required RuleSettings settings,
+    double? occupiedAreaM2,
   }) {
     final List<_Side> sides = [
       _Side(
@@ -86,8 +87,8 @@ class BuildingRuleChecker {
 
     // ---------- Regra 2: Art. 1.301 do Código Civil ----------
     final List<_Side> tooClose = sides
-        .where((s) =>
-            s.isNeighbor && s.distanceM < civilCodeDistanceM - _epsilon)
+        .where(
+            (s) => s.isNeighbor && s.distanceM < civilCodeDistanceM - _epsilon)
         .toList();
 
     for (final _Side side in tooClose) {
@@ -138,7 +139,8 @@ class BuildingRuleChecker {
     }
 
     // ---------- Regra 4: taxa de ocupação ----------
-    final double occupancy = plan.areaM2 / site.areaM2 * 100;
+    final double areaM2 = occupiedAreaM2 ?? plan.areaM2;
+    final double occupancy = areaM2 / site.areaM2 * 100;
     final double maxOccupancy = settings.maxOccupancyPercent;
 
     if (maxOccupancy > 0 && occupancy > maxOccupancy + 0.01) {
@@ -159,7 +161,7 @@ class BuildingRuleChecker {
         BuildingAlert(
           severity: AlertSeverity.info,
           title: 'Taxa de ocupação: ${formatDecimal(occupancy)}%',
-          message: 'A planta ocupa ${formatDecimal(plan.areaM2)} m² de um '
+          message: 'A planta ocupa ${formatDecimal(areaM2)} m² de um '
               'terreno de ${formatDecimal(site.areaM2)} m². $limitText',
         ),
       );

@@ -4,6 +4,7 @@ import 'package:smartfloor/features/capture/domain/entities/capture_mode.dart';
 import 'package:smartfloor/features/capture/domain/entities/captured_input.dart';
 import 'package:smartfloor/features/capture/domain/repositories/capture_repository.dart';
 import 'package:smartfloor/features/capture/presentation/pages/capture_page.dart';
+import 'package:smartfloor/features/plan/presentation/pages/floor_plan_editor_page.dart';
 
 class FakeCaptureRepository implements CaptureRepository {
   final CapturedInput? input;
@@ -46,8 +47,7 @@ void main() {
 
     await tester.tap(find.text('Continuar'));
     await tester.pumpAndSettle();
-    expect(find.text('Medidas do ambiente'), findsOneWidget);
-    expect(find.text('Arquivo de referência'), findsOneWidget);
+    expect(find.byType(FloorPlanEditorPage), findsOneWidget);
   });
 
   testWidgets('canceling a capture stays on the selection page', (

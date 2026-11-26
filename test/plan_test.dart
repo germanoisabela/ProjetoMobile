@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:smartfloor/features/plan/domain/entities/plan.dart';
 import 'package:smartfloor/features/plan/domain/entities/point_2d.dart';
+import 'package:smartfloor/features/plan/domain/entities/wall.dart';
 
 void main() {
   final Plan plan = Plan.rectangle(name: 'Teste', widthM: 4, lengthM: 3);
@@ -54,5 +55,71 @@ void main() {
 
     expect(snapped.x, closeTo(1.25, 1e-9));
     expect(snapped.y, closeTo(2.40, 1e-9));
+  });
+
+  test('distanceTo calcula a distância em linha reta (3-4-5)', () {
+    expect(
+      const Point2D(0, 0).distanceTo(const Point2D(3, 4)),
+      closeTo(5, 1e-9),
+    );
+  });
+
+  test('closestPointTo projeta no segmento e limita às extremidades', () {
+    const Wall wall = Wall(
+      start: Point2D(0, 0),
+      end: Point2D(4, 0),
+    );
+
+    final Point2D above = wall.closestPointTo(const Point2D(2, 3));
+    expect(above.x, closeTo(2, 1e-9));
+    expect(above.y, closeTo(0, 1e-9));
+
+    final Point2D beyond = wall.closestPointTo(const Point2D(7, 1));
+    expect(beyond.x, closeTo(4, 1e-9));
+    expect(beyond.y, closeTo(0, 1e-9));
+  });
+
+  test('pointAtDistance retorna o ponto medido desde o início da parede', () {
+    const Wall wall = Wall(
+      start: Point2D(0, 0),
+      end: Point2D(4, 0),
+    );
+    final Point2D point = wall.pointAtDistance(1);
+
+    expect(point.x, closeTo(1, 1e-9));
+    expect(point.y, closeTo(0, 1e-9));
+  });
+
+  test('insertVertexOnWall preserva área e perímetro', () {
+    final Plan withCorner = plan.insertVertexOnWall(0, const Point2D(2, 0));
+
+    expect(withCorner.vertices, hasLength(5));
+    expect(withCorner.vertices[1].x, closeTo(2, 1e-9));
+    expect(withCorner.areaM2, closeTo(12, 1e-9));
+    expect(withCorner.perimeterM, closeTo(14, 1e-9));
+    expect(plan.vertices, hasLength(4));
+  });
+
+  test('insertVertexOnWall insere também na parede que fecha a planta', () {
+    final Plan withCorner = plan.insertVertexOnWall(3, const Point2D(0, 1.5));
+
+    expect(withCorner.vertices, hasLength(5));
+    expect(withCorner.vertices.last.y, closeTo(1.5, 1e-9));
+    expect(withCorner.areaM2, closeTo(12, 1e-9));
+  });
+
+  test('removeVertex remove um canto sem permitir menos de três', () {
+    final Plan five = plan.insertVertexOnWall(0, const Point2D(2, 0));
+    expect(five.removeVertex(1).vertices, hasLength(4));
+
+    final Plan triangle = Plan(
+      name: 'Triângulo',
+      vertices: [
+        const Point2D(0, 0),
+        const Point2D(4, 0),
+        const Point2D(0, 3),
+      ],
+    );
+    expect(identical(triangle.removeVertex(0), triangle), isTrue);
   });
 }

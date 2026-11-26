@@ -7,7 +7,7 @@ class Plan {
   final List<Point2D> vertices;
 
   Plan({required this.name, required List<Point2D> vertices})
-    : vertices = List.unmodifiable(vertices);
+      : vertices = List.unmodifiable(vertices);
 
   /// Atalho para criar uma planta retangular.
   factory Plan.rectangle({
@@ -31,7 +31,8 @@ class Plan {
     required String name,
     required double widthM,
     required double lengthM,
-  }) => Plan.rectangle(name: name, widthM: widthM, lengthM: lengthM);
+  }) =>
+      Plan.rectangle(name: name, widthM: widthM, lengthM: lengthM);
 
   Plan copyWith({String? name, List<Point2D>? vertices}) {
     return Plan(name: name ?? this.name, vertices: vertices ?? this.vertices);
@@ -57,6 +58,72 @@ class Plan {
     );
 
     return moveVertex((wallIndex + 1) % vertices.length, newEnd);
+  }
+
+  /// Insere um vértice após o início da parede indicada.
+  Plan insertVertexOnWall(int wallIndex, Point2D point) {
+    if (wallIndex < 0 || wallIndex >= vertices.length) {
+      throw RangeError.index(wallIndex, walls, 'wallIndex');
+    }
+
+    final List<Point2D> updated = [
+      ...vertices.sublist(0, wallIndex + 1),
+      point,
+      ...vertices.sublist(wallIndex + 1),
+    ];
+    return copyWith(vertices: updated);
+  }
+
+  /// Remove um vértice, preservando o mínimo de três pontos da planta.
+  Plan removeVertex(int index) {
+    if (index < 0 || index >= vertices.length) {
+      throw RangeError.index(index, vertices, 'index');
+    }
+    if (vertices.length <= 3) return this;
+
+    final List<Point2D> updated = List.of(vertices)..removeAt(index);
+    return copyWith(vertices: updated);
+  }
+
+  /// Retorna se [point] está dentro deste polígono.
+  bool containsPoint(Point2D point) {
+    if (vertices.length < 3) return false;
+    bool inside = false;
+    for (int i = 0, j = vertices.length - 1; i < vertices.length; j = i++) {
+      final Point2D a = vertices[i];
+      final Point2D b = vertices[j];
+      final double cross =
+          (point.x - a.x) * (b.y - a.y) - (point.y - a.y) * (b.x - a.x);
+      final double dot =
+          (point.x - a.x) * (point.x - b.x) + (point.y - a.y) * (point.y - b.y);
+      if (cross.abs() <= 1e-8 && dot <= 1e-8) return true;
+      final bool crosses = (a.y > point.y) != (b.y > point.y) &&
+          point.x < (b.x - a.x) * (point.y - a.y) / (b.y - a.y) + a.x;
+      if (crosses) inside = !inside;
+    }
+    return inside;
+  }
+
+  /// Centro geométrico do polígono; usa a média dos vértices se a área for zero.
+  Point2D get centroid {
+    double twiceArea = 0;
+    double cx = 0;
+    double cy = 0;
+    for (int i = 0; i < vertices.length; i++) {
+      final Point2D a = vertices[i];
+      final Point2D b = vertices[(i + 1) % vertices.length];
+      final double cross = a.x * b.y - b.x * a.y;
+      twiceArea += cross;
+      cx += (a.x + b.x) * cross;
+      cy += (a.y + b.y) * cross;
+    }
+
+    if (twiceArea.abs() < 1e-9) {
+      final double x = vertices.fold(0.0, (sum, point) => sum + point.x);
+      final double y = vertices.fold(0.0, (sum, point) => sum + point.y);
+      return Point2D(x / vertices.length, y / vertices.length);
+    }
+    return Point2D(cx / (3 * twiceArea), cy / (3 * twiceArea));
   }
 
   /// Paredes que ligam cada vértice ao seguinte, fechando o contorno.

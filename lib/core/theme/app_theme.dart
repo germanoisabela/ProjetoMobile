@@ -27,7 +27,7 @@ class AppTheme {
       ),
 
       // Cards brancos com cantos arredondados
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: Colors.white,
         elevation: 0,
         margin: EdgeInsets.zero,

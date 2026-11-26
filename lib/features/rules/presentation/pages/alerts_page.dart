@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../plan/domain/entities/plan.dart';
+import '../../../plan/domain/entities/floor_plan.dart';
 import '../../domain/entities/building_alert.dart';
 import '../../domain/entities/rule_settings.dart';
 import '../../domain/entities/site.dart';
@@ -16,12 +17,14 @@ import '../widgets/site_painter.dart';
 /// quando o usuário aplica uma sugestão.
 class AlertsPage extends StatefulWidget {
   final Plan plan;
+  final FloorPlan? floorPlan;
   final Site site; // terreno original, usado em "Restaurar"
   final RuleSettings settings;
 
   const AlertsPage({
     super.key,
     required this.plan,
+    this.floorPlan,
     required this.site,
     required this.settings,
   });
@@ -58,6 +61,7 @@ class _AlertsPageState extends State<AlertsPage> {
       MaterialPageRoute(
         builder: (_) => ReportPage(
           plan: widget.plan,
+          floorPlan: widget.floorPlan,
           site: _site,
           settings: widget.settings,
         ),
@@ -74,11 +78,13 @@ class _AlertsPageState extends State<AlertsPage> {
       plan: widget.plan,
       site: _site,
       settings: widget.settings,
+      occupiedAreaM2: widget.floorPlan?.builtAreaM2,
     );
     final List<Suggestion> suggestions = const SuggestionEngine().suggest(
       plan: widget.plan,
       site: _site,
       settings: widget.settings,
+      occupiedAreaM2: widget.floorPlan?.builtAreaM2,
     );
 
     final int attention =
@@ -114,6 +120,7 @@ class _AlertsPageState extends State<AlertsPage> {
           ),
           const SizedBox(height: 8),
           Text(
+            '${widget.floorPlan == null ? '' : 'A ocupação usa a soma das áreas dos cômodos; recuos aproximados pelo retângulo envolvente. '}'
             'Distâncias da construção até cada divisa. Laranja: menos de '
             '1,50 m de um vizinho. Vermelho: fora do terreno.',
             style: textTheme.bodySmall?.copyWith(

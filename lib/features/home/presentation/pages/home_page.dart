@@ -461,7 +461,9 @@ class _HomePageState extends State<HomePage> {
   }) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
@@ -512,7 +514,9 @@ class _HomePageState extends State<HomePage> {
   }) {
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(18),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(18),
@@ -546,7 +550,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-      ],
+      ),
     );
   }
 

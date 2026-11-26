@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
+import '../../../plan/domain/entities/floor_plan.dart';
 import '../../../plan/domain/entities/plan.dart';
+import '../../domain/entities/floor_plan_site_analysis.dart';
 import '../../domain/entities/rule_settings.dart';
 import '../../domain/entities/site.dart';
 import 'alerts_page.dart';
@@ -10,8 +12,13 @@ import 'alerts_page.dart';
 /// Formulário do terreno e dos parâmetros do município.
 class SiteFormPage extends StatefulWidget {
   final Plan plan;
+  final FloorPlan? floorPlan;
 
-  const SiteFormPage({super.key, required this.plan});
+  const SiteFormPage({
+    super.key,
+    required this.plan,
+    this.floorPlan,
+  });
 
   @override
   State<SiteFormPage> createState() => _SiteFormPageState();
@@ -31,6 +38,20 @@ class _SiteFormPageState extends State<SiteFormPage> {
   final TextEditingController _minSide = TextEditingController();
   final TextEditingController _minRear = TextEditingController();
   final TextEditingController _maxOccupancy = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    final FloorPlan? floorPlan = widget.floorPlan;
+    if (floorPlan != null) {
+      final FloorPlanSiteAnalysis analysis =
+          FloorPlanSiteAnalysis.fromFloorPlan(floorPlan);
+      _siteWidth.text = formatDecimal(analysis.site.widthM);
+      _siteLength.text = formatDecimal(analysis.site.lengthM);
+      _front.text = formatDecimal(analysis.site.frontSetbackM);
+      _left.text = formatDecimal(analysis.site.leftSetbackM);
+    }
+  }
 
   @override
   void dispose() {
@@ -123,6 +144,7 @@ class _SiteFormPageState extends State<SiteFormPage> {
       MaterialPageRoute(
         builder: (_) => AlertsPage(
           plan: widget.plan,
+          floorPlan: widget.floorPlan,
           site: site,
           settings: settings,
         ),
@@ -159,7 +181,7 @@ class _SiteFormPageState extends State<SiteFormPage> {
                     child: Text(
                       'Construção: ${formatDecimal(plan.boundingWidthM)} × '
                       '${formatDecimal(plan.boundingHeightM)} m '
-                      '(${formatDecimal(plan.areaM2)} m²)',
+                      '(${formatDecimal(widget.floorPlan?.builtAreaM2 ?? plan.areaM2)} m²)',
                       style: textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -169,6 +191,16 @@ class _SiteFormPageState extends State<SiteFormPage> {
               ),
             ),
           ),
+          if (widget.floorPlan != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              'A área construída e a ocupação somam os cômodos. Os recuos '
+              'são aproximados pelo retângulo envolvente da construção.',
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
           const SizedBox(height: 20),
 
           Form(

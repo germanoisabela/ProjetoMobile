@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/utils/formatters.dart';
 import '../../../home/domain/repositories/project_repository.dart';
+import '../../../plan/domain/entities/floor_plan.dart';
 import '../../../plan/domain/entities/plan.dart';
-import '../../../plan/presentation/pages/plan_editor_page.dart';
+import '../../../plan/presentation/pages/floor_plan_editor_page.dart';
 import '../../domain/entities/captured_input.dart';
 import '../widgets/capture_step_indicator.dart';
 
@@ -66,7 +67,7 @@ class _CaptureMeasuresPageState extends State<CaptureMeasuresPage> {
   void _onContinue() {
     if (!_formKey.currentState!.validate()) return;
 
-    final Plan plan = Plan.fromRectangle(
+    final Plan room = Plan.fromRectangle(
       name: _nameController.text.trim(),
       widthM: _parse(_widthController.text)!,
       lengthM: _parse(_lengthController.text)!,
@@ -74,8 +75,11 @@ class _CaptureMeasuresPageState extends State<CaptureMeasuresPage> {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PlanEditorPage(
-          plan: plan,
+        builder: (_) => FloorPlanEditorPage(
+          initialPlan: FloorPlan(
+            name: room.name,
+            rooms: [room],
+          ),
           projectRepository: widget.projectRepository,
         ),
       ),

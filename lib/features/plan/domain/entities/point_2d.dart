@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 /// Um ponto no plano 2D, com coordenadas em metros.
 class Point2D {
   final double x;
@@ -12,5 +14,12 @@ class Point2D {
     }
 
     return Point2D((x / stepM).round() * stepM, (y / stepM).round() * stepM);
+  }
+
+  /// Distância em linha reta até [other], em metros.
+  double distanceTo(Point2D other) {
+    final double dx = other.x - x;
+    final double dy = other.y - y;
+    return math.sqrt(dx * dx + dy * dy);
   }
 }
